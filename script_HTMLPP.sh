@@ -26,3 +26,24 @@ while read -r linie; do
     linie="${linie%"${linie##*[![:space:]]}"}"
     [ -z "$linie" ] && continue
 
+    if [[ "$linie" == "</"* ]]; then
+	nivel=$((nivel-1))
+	[ $nivel -lt 0 ] && nivel=0
+    fi
+
+	printeaza_indentare $nivel
+	echo "$linie"
+
+	if [[ "$linie" == "<"* ]] && \
+   	   [[ "$linie" != "</"* ]] && \
+   	   [[ "$linie" != *"/>" ]] && \
+   	   [[ "$linie" != "<!"* ]]; then
+
+		tag_fara_start="${linie:1}"
+		nume_tag=$(echo "$tag_fara_start" | sed 's/[ >].*//' | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$VOID_TAGS" != *" $nume_tag "* ]]; then
+			nivel=$((nivel+1))
+		fi
+	fi
+done
